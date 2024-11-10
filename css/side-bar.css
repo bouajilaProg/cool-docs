@@ -78,9 +78,6 @@ body {
   list-style-type: none;
 }
 
-.link-list li {
-  margin: 8px 0;
-}
 
 .link-list a {
   color: #555;
@@ -90,6 +87,7 @@ body {
   padding: 5px;
   border-radius: 5px;
   transition: background-color 0.3s;
+  margin-left: 10px;
 }
 
 .link-list a:hover {
