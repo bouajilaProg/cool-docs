@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <title>test</title>
+  <category>test</category>
+  <creator>testUser</creator>
+  <content>
+    <item>
+      <title>test</title>
+      <text>test description</text>
+      <code>test code</code>
+    </item>
+    <item>
+      <title>test</title>
+      <text>test description</text>
+      <code>test code</code>
+      <text>test description 2</text>
+    </item>
+    <item>
+      <title>test</title>
+      <text>test description</text>
+      <code>test code</code>
+      <code>test code 2</code>
+    </item>
+  </content>
+</document>
