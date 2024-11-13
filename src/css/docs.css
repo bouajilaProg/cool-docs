@@ -35,9 +35,92 @@ code {
     font-family: 'Fira Code', monospace; /* Use Fira Code for code blocks */
     font-size: 0.9em; /* Smaller font size for code */
     background: #f8f8f8; /* Light gray background for code blocks */
-    padding: 2px 4px;
+    padding: 1rem;
     border-radius: 4px;
     tab-size: 2;
+    word-break: break-word;
+    white-space: pre-wrap;
+    overflow: auto;
+    display: block;
+}
+
+@media (max-width: 900px) {
+  code{
+    font-size: 0.8em;
+  }
 }
 
 
+
+/* Settings Panel */
+
+.settings-panel {
+  width: 100%;
+  padding: 1em;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.settings-panel h2 {
+  font-size: 1.5em;
+  color: #333;
+  margin-bottom: 1em;
+}
+
+.settings-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.settings-panel .form-group {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+.settings-panel label {
+  color: grey;
+  font-size: 0.9em;
+  min-width: 100px;
+}
+
+.settings-panel button,
+.settings-panel select {
+  padding: 0.5em;
+  font-size: 1em;
+  width: 100%;
+  max-width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.settings-panel button:hover {
+  background-color: #0070c3;
+  color: #fff;
+}
+
+.settings-panel button:active {
+  background-color: #005a9e;
+}
+
+.settings-panel select {
+  cursor: pointer;
+}
+
+.settings-panel .form-actions {
+  width: 100%; 
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+}
+
+.settings-panel .form-actions button {
+  width: auto;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}

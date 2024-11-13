@@ -1,5 +1,4 @@
 use serde::Serialize;
-use serde_json::to_string_pretty;
 use std::fs;
 use std::fs::File;
 use std::io::{self, Read};
@@ -9,7 +8,7 @@ const REPO_PATH: &str = "./repo";
 
 #[derive(Debug, Serialize)]
 struct Registry {
-    lang: String,
+    list_title: String,
     commands: Vec<String>, // Directly store the list of file names as strings
 }
 
@@ -44,7 +43,7 @@ fn get_registry(lang: String) -> Vec<Registry> {
         }
 
         registries.push(Registry {
-            lang: dir_path.file_name().unwrap().to_string_lossy().into_owned(),
+            list_title: dir_path.file_name().unwrap().to_string_lossy().into_owned(),
             commands: file_names, // Directly store the file names
         });
     }
@@ -54,12 +53,19 @@ fn get_registry(lang: String) -> Vec<Registry> {
 
 #[tauri::command]
 fn fetch_doc(lang: String, category: String, name: String) -> String {
+    println!("Fetching doc for: {}/{}/{}", lang, category, name); // Debug print
     let file_path = format!("{}/{}/{}/{}.xml", REPO_PATH, lang, category, name);
 
     if Path::new(&file_path).exists() {
-        match read_file_contents(&file_path) {
-            Ok(contents) => contents,
-            Err(e) => format!("Error reading file: {}", e),
+        match fs::read_to_string(&file_path) {
+            Ok(contents) => {
+                println!("File contents: {}", contents); // Debug print
+                contents // Return the file contents
+            }
+            Err(e) => {
+                println!("Error reading file: {}", e); // Debug print
+                format!("Error reading file: {}", e)
+            }
         }
     } else {
         "File not found".to_string()

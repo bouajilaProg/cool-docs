@@ -7,8 +7,8 @@
   <title>Settings</title>
   <link rel="stylesheet" href="./css/docs.css">
   <link rel="stylesheet" href="./css/side-bar.css">
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
+  <link rel="stylesheet" href="lib/highlightjs/code-theme/github-dark.css">
+  <script src="js/main.js" type="module" defer></script>
 </head>
 
 <body>
@@ -20,67 +20,12 @@
       </header>
     </a>
 
-    <div class="link-container">
-
-      <!-- Algorithms Section -->
-      <div class="link-list">
-        <span>Algorithms</span>
-        <ul>
-          <li><a href="?lang=cpp&name=dp&category=algorithms">dp</a></li>
-          <li><a href="?lang=cpp&name=backtrack&category=algorithms">back track</a></li>
-          <li><a href="?lang=cpp&name=dfs&category=algorithms">dfs</a></li>
-          <li><a href="?lang=cpp&name=bfs&category=algorithms">bfs</a></li>
-        </ul>
-      </div>
-
-      <!-- Data Structures Section -->
-      <div class="link-list">
-        <span>Data Structures</span>
-        <ul>
-          <li><a href="?lang=cpp&name=array&category=data-structures">array</a></li>
-          <li><a href="?lang=cpp&name=linkedlist&category=data-structures">linked list</a></li>
-          <li><a href="?lang=cpp&name=stack&category=data-structures">stack</a></li>
-          <li><a href="?lang=cpp&name=queue&category=data-structures">queue</a></li>
-        </ul>
-      </div>
-
-      <!-- Variables Section -->
-      <div class="link-list">
-        <span>Variables</span>
-        <ul>
-          <li><a href="?lang=cpp&name=int&category=variables">int</a></li>
-          <li><a href="?lang=cpp&name=float&category=variables">float</a></li>
-          <li><a href="?lang=cpp&name=string&category=variables">string</a></li>
-          <li><a href="?lang=cpp&name=bool&category=variables">bool</a></li>
-        </ul>
-      </div>
-
-      <!-- Loops Section -->
-      <div class="link-list">
-        <span>Loops</span>
-        <ul>
-          <li><a href="?lang=cpp&name=for&category=loops">for loop</a></li>
-          <li><a href="?lang=cpp&name=while&category=loops">while loop</a></li>
-          <li><a href="?lang=cpp&name=do-while&category=loops">do-while loop</a></li>
-        </ul>
-      </div>
-
-      <!-- Conditions Section -->
-      <div class="link-list">
-        <span>Conditions</span>
-        <ul>
-          <li><a href="?lang=cpp&name=if&category=conditions">if statement</a></li>
-          <li><a href="?lang=cpp&name=else&category=conditions">else statement</a></li>
-          <li><a href="?lang=cpp&name=switch&category=conditions">switch statement</a></li>
-          <li><a href="?lang=cpp&name=ternary&category=conditions">ternary operator</a></li>
-        </ul>
-      </div>
-
+    <div id="side-root" class="link-container">
     </div>
 
     <footer>
       <i class="fa-solid fa-gear"></i>
-      <a href="#Settings">
+      <a href="Settings.html" id="settings-btn">
         Settings
       </a>
     </footer>
@@ -88,16 +33,9 @@
 
   <div id="root"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
-  <script src="./js/docs.js" type="module"></script>
+  <script src="lib/highlightjs/highlight.js"></script>
+  <script src="lib/highlightjs/cpp.js"></script>
 
-  <script>
-    // Make sure the DOM is loaded before calling hljs.highlightAll
-    document.addEventListener("DOMContentLoaded", function () {
-      hljs.highlightAll();
-    });
-  </script>
 </body>
 
 </html>
