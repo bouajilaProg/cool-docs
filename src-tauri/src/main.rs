@@ -1,7 +1,6 @@
-use serde::Serialize;
-use std::fs;
-use std::fs::File;
-use std::io::{self, Read};
+use serde::{Deserialize, Serialize};
+use std::fs::{self, File, OpenOptions};
+use std::io::{self, Read, Write};
 use std::path::Path;
 
 const REPO_PATH: &str = "./repo";
@@ -12,17 +11,15 @@ struct Registry {
     commands: Vec<String>, // Directly store the list of file names as strings
 }
 
-fn read_file_contents(file_path: &str) -> io::Result<String> {
-    let mut file = File::open(file_path)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    Ok(contents)
+#[derive(Serialize, Deserialize, Debug)]
+struct Settings {
+    language: String,
+    code_theme: String,
 }
 
 #[tauri::command]
 fn get_registry(lang: String) -> Vec<Registry> {
     let path = format!("repo/{}", lang); // Going up one level to access `repo`
-    println!("Looking for directory at: {}", path); // Debug print
 
     let mut registries: Vec<Registry> = Vec::new();
 
@@ -53,7 +50,6 @@ fn get_registry(lang: String) -> Vec<Registry> {
 
 #[tauri::command]
 fn fetch_doc(lang: String, category: String, name: String) -> String {
-    println!("Fetching doc for: {}/{}/{}", lang, category, name); // Debug print
     let file_path = format!("{}/{}/{}/{}.xml", REPO_PATH, lang, category, name);
 
     if Path::new(&file_path).exists() {
@@ -72,10 +68,60 @@ fn fetch_doc(lang: String, category: String, name: String) -> String {
     }
 }
 
+#[tauri::command]
+fn update_settings(language: &str, code_theme: &str) {
+    // Create a new settings object
+    let new_settings = Settings {
+        language: language.to_string(),
+        code_theme: code_theme.to_string(),
+    };
+
+    // Define the file path
+    let file_path = "../settings.json";
+    let mut file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(file_path)
+        .unwrap();
+
+    // Write the updated settings back to the file
+    let json_data = serde_json::to_string_pretty(&new_settings).unwrap();
+    file.set_len(0).unwrap(); // Clear existing content
+    file.write_all(json_data.as_bytes()).unwrap();
+
+    println!("Settings updated successfully"); // Debug print
+}
+
+#[tauri::command]
+fn get_settings() -> Settings {
+    // Define the file path
+    let file_path = "settings.json";
+
+    // Open the file
+    let mut file = File::open(file_path).unwrap();
+
+    // Read the file contents into a string
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+
+    // Deserialize the JSON data into the Settings struct
+    let settings: Settings = serde_json::from_str(&contents).unwrap();
+
+    println!("{:?}", settings);
+
+    settings
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![fetch_doc, get_registry])
+        .invoke_handler(tauri::generate_handler![
+            fetch_doc,
+            get_registry,
+            update_settings,
+            get_settings
+        ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
 }

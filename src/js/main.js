@@ -24,6 +24,11 @@ async function getDocs() {
     return;
   }
 
+  //fetch the settings
+  const { language, code_theme } = await invoke('get_settings');
+  const codeThemeSetter = document.getElementById('code-theme');
+  codeThemeSetter.value = `lib/highlightjs/code-theme/${code_theme}.css`;
+
   let docHtml = String();
 
   const mainTitle = doc.querySelector('name').textContent;
@@ -109,11 +114,12 @@ async function updateSide() {
 document.addEventListener("DOMContentLoaded", async () => {  // Use async function to await updateSide()
   try {
     const firstSubRegister = await updateSide();  // Await updateSide() since it's asynchronous
-    if (window.location.search.includes("name")) {
-      getDocs();
-    } else {
-      history.pushState({}, "", `/Docs.html?lang=cpp&category=${firstSubRegister.list_title}&name=${firstSubRegister.commands[0].split(".")[0]}`);  // Push the URL to history
-      getDocs();
+    if (window.location.search.includes("lang")) {
+      if (window.location.search.includes("name") == false) {
+
+        history.pushState({}, "", `/Docs.html?lang=cpp&category=${firstSubRegister.list_title}&name=${firstSubRegister.commands[0].split(".")[0]}`);  // Push the URL to history
+      }
+      getDocs();  // Call getDocs() to get the documentation
     }
   } catch (error) {
     alert("Error during initialization: " + error);  // Alert error message if there's an issue
