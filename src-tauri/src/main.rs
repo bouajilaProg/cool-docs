@@ -19,7 +19,13 @@ struct Settings {
 
 #[tauri::command]
 fn get_registry(lang: String) -> Vec<Registry> {
+    if lang == "" {
+        let registries: Vec<Registry> = Vec::new();
+        return registries;
+    }
+
     let path = format!("data/repo/{}", lang); // Going up one level to access `repo`
+    println!("{}", path);
 
     let mut registries: Vec<Registry> = Vec::new();
 
@@ -52,6 +58,7 @@ fn get_registry(lang: String) -> Vec<Registry> {
 fn fetch_doc(lang: String, category: String, name: String) -> String {
     let file_path = format!("{}/{}/{}/{}.xml", REPO_PATH, lang, category, name);
 
+    print!("{}", file_path);
     if Path::new(&file_path).exists() {
         match fs::read_to_string(&file_path) {
             Ok(contents) => {
@@ -74,9 +81,6 @@ fn update_settings(language: String, code_theme: String) {
         code_theme: code_theme.to_string(),
     };
 
-    // Print the new settings
-    println!("New settings: {:?}", new_settings);
-
     // Define the file path
     let file_path = "data/settings.json";
 
@@ -88,16 +92,10 @@ fn update_settings(language: String, code_theme: String) {
         .open(file_path)
         .unwrap();
 
-    let debug_read = fs::read_to_string(file_path).unwrap();
-    println!("Debug read: {:?}", debug_read);
-
     // Write the updated settings back to the file
     let json_data = serde_json::to_string_pretty(&new_settings).unwrap();
     file.set_len(0).unwrap();
     file.write_all(json_data.as_bytes()).unwrap();
-
-    // Final success message
-    println!("Settings updated successfully");
 }
 
 #[tauri::command]
@@ -106,16 +104,28 @@ fn get_settings() -> Settings {
     let file_path = "data/settings.json";
 
     // Open the file
-    let mut file = File::open(file_path).unwrap();
+    match File::open(file_path) {
+        Ok(mut file) => {
+            println!("File opened successfully!");
+            // Read the file contents into a string
+            let mut contents = String::new();
+            file.read_to_string(&mut contents).unwrap();
 
-    // Read the file contents into a string
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
+            let settings: Settings = serde_json::from_str(&contents).unwrap();
 
-    // Deserialize the JSON data into the Settings struct
-    let settings: Settings = serde_json::from_str(&contents).unwrap();
+            settings
+        }
+        Err(e) => {
+            let json_data = r#"{
+                "language": "en",
+                "code_theme": "github-dark"
+            }"#;
 
-    settings
+            println!("Failed to open file: {}", e);
+            let settings: Settings = serde_json::from_str(json_data).unwrap();
+            settings
+        }
+    }
 }
 
 fn main() {

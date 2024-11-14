@@ -31,6 +31,12 @@ form.addEventListener('submit', async (e) => {
   await invoke('update_settings', { language, codeTheme });
 });
 
+const cancelButton = document.getElementById('cancel-btn');
+cancelButton.addEventListener('click', async (e) => {
+  e.preventDefault();
+  getSettings();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   getSettings();
 });

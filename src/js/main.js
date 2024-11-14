@@ -13,7 +13,19 @@ async function getDocs() {
   const commandName = urlParams.get('name');
   const categoryName = urlParams.get('category');
 
+  console.log(lang, categoryName, commandName);
+
   const rootElement = document.getElementById('root');
+
+  if (lang === null || commandName === null || categoryName === null) {
+    rootElement.innerHTML = "<h1>Not found</h1>";
+    return;
+  }
+
+  if (window.location.pathname !== "/Docs.html") {
+    return;
+  }
+
 
   //fn fetch_doc(lang: String, category: String, name: String) -> String {
   const xmlFile = await invoke('fetch_doc', { lang: lang, category: categoryName, name: commandName });
@@ -63,22 +75,34 @@ async function getDocs() {
 }
 
 async function getRegister() {
-  return await invoke("get_registry", { lang: "cpp" });
+  let lang = "cpp";
+  if (window.location.search.includes("lang")) {
+    lang = window.location.search.split("&")[0].split("=")[1];
+  }
+
+
+  return await invoke("get_registry", { lang });
 }
 
 function goTo(link) {
-  const category = link.split("/")[2];
-  const name = link.split("/")[3].split(".")[0];
+  const [_, lang, category, name] = link.split("/");
   if (window.location.pathname.split("/")[1] !== "Docs.html") {
-    window.location.href = `/Docs.html?lang=cpp&category=${category}&name=${name}`;
+    console.log("redirecting");
+    window.location.href = `/Docs.html?lang=${lang}&category=${category}&name=${name.split(".")[0]} `;
   } else {
-    history.pushState({}, "", `/Docs.html?lang=cpp&category=${category}&name=${name}`);
+    history.pushState({}, "", `/Docs.html?lang=${lang}&category=${category}&name=${name.split(".")[0]}`);
+
+    console.log("pushing");
     getDocs();
   }
 }
 
 async function updateSide() {
   const register = await getRegister();
+
+  if (register.length === 0) {
+    return; // If the register is empty, do nothing
+  }
   const sideBarElement = document.getElementById('side-root');
   if (!sideBarElement) {
     return; // If the sidebar element doesn't exist, do nothing
@@ -86,21 +110,24 @@ async function updateSide() {
 
   let sidebar = "";
 
+  console.log(register);
   //could've used d but i did this first and it worked so i didn't bother changing it
   register.forEach(subRegistry => {
-    sidebar += ` <div class="link-list"> <span>${capitalize(subRegistry.list_title)}</span> <ul>`;
+    sidebar += ` <div class= "link-list" > <span>${capitalize(subRegistry.list_title)}</span> <ul>`;
 
     subRegistry.commands.forEach(command => {
       const link = `/cpp/${subRegistry.list_title}/${command}`;
-      sidebar += `<li><button data-link="${link}">${capitalize(command.split(".")[0])}</button></li>`;
+      sidebar += `<li><button class="link-btn" data-link="${link}">${capitalize(command.split(".")[0])}</button></li>`;
     });
 
-    sidebar += `</ul> </div>`;
+    sidebar += `</ul> </div > `;
   });
 
   sideBarElement.innerHTML = sidebar;
 
-  const buttons = document.querySelectorAll("button");
+
+
+  const buttons = document.querySelectorAll(".link-btn");
   buttons.forEach(button => {
     button.addEventListener("click", () => {
       goTo(button.getAttribute("data-link"));
@@ -113,14 +140,29 @@ async function updateSide() {
 
 document.addEventListener("DOMContentLoaded", async () => {  // Use async function to await updateSide()
   try {
-    const firstSubRegister = await updateSide();  // Await updateSide() since it's asynchronous
-    if (window.location.search.includes("lang")) {
-      if (window.location.search.includes("name") == false) {
+    const firstSubRegister = await updateSide();
 
-        history.pushState({}, "", `/Docs.html?lang=cpp&category=${firstSubRegister.list_title}&name=${firstSubRegister.commands[0].split(".")[0]}`);  // Push the URL to history
-      }
-      getDocs();  // Call getDocs() to get the documentation
+    if (window.location.pathname === "/Settings.html") {
+      return;
     }
+
+    if (firstSubRegister === undefined || firstSubRegister === null) {
+      const rootElement = document.getElementById('root');
+      rootElement.innerHTML = "<p>no doc was found for this language</p>";
+
+      return;
+    }
+    const lang = window.location.search.split("&")[0].split("=")[1];
+
+    // update the settings button href
+    const settingsButton = document.getElementById("settings-btn");
+    settingsButton.setAttribute("href", `/Settings.html?lang=${lang}`);
+
+    // if first time loading the page, redirect to the first command
+    if (window.location.search.includes("name") == false) {
+      window.location.href = `/Docs.html?lang=${lang}&category=${firstSubRegister.list_title}&name=${firstSubRegister.commands[0].split(".")[0]} `
+    }
+    getDocs();  // Call getDocs() to get the documentation
   } catch (error) {
     alert("Error during initialization: " + error);  // Alert error message if there's an issue
   }
