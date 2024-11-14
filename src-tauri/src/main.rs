@@ -121,7 +121,6 @@ fn get_settings() -> Settings {
                 "code_theme": "github-dark"
             }"#;
 
-            println!("Failed to open file: {}", e);
             let settings: Settings = serde_json::from_str(json_data).unwrap();
             settings
         }

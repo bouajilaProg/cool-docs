@@ -18,7 +18,11 @@ Cool Docs is a fast, cross-platform desktop application designed for competitive
 - **Linux Install Script**: A script to simplify installation on Linux systems.
 - **Dark Mode**: Support for a dark mode theme to reduce eye strain.
 - **More Code Theme Styles**: Additional code theme styles for a personalized experience.
-- **Other Programming Languages**: Add documentation for other programming languages beyond C++.
+- **Other Programming Languages**: Add documentation for other programming languages.
+- **Improved UI**: Enhancements to the user interface for a more intuitive experience.
+- **Code Snippet Copy**: Copy code snippets directly to the clipboard for easy pasting into your code editor.
+- **md support**: support for markdown files. 
+
 
 ## Installation
 
@@ -45,7 +49,11 @@ Cool Docs is a fast, cross-platform desktop application designed for competitive
    and search for your system to find the appropriate build.
 
 5. **Setting Up Data**: 
-   Create a `/data/repo/cpp` directory, and inside it, add the XML files containing your documentation.
+   Create a `/data/repo/<your languages>` directory, and inside it, add the XML files containing your documentation.
+
+  for now we only support c++ , python , java and c#.
+
+
 
 ## How to Add New Documentation
 
@@ -75,21 +83,6 @@ In this XML file:
 - Each `<document>` contains a name, category, creator, and content.
 - Each `<item>` inside `<content>` can contain multiple `<title>`, `<text>`, and `<code>` elements, and you can add as many items as needed.
 
-Additionally, you need to include a `settings.json` file in data/repo with the following structure:
-
-```json
-{
-  "language": "en",
-  "code_theme": "github-dark"
-}
-```
-
-You can choose from several available code themes, including:
-- codepen
-- github-dark
-- github-white
-- google-code
-- monokai
 
 ## Contributing
 
