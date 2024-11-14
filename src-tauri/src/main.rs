@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File, OpenOptions};
-use std::io::{self, Read, Write};
+use std::io::{Read, Write};
 use std::path::Path;
 
 const REPO_PATH: &str = "./repo";
@@ -55,11 +55,9 @@ fn fetch_doc(lang: String, category: String, name: String) -> String {
     if Path::new(&file_path).exists() {
         match fs::read_to_string(&file_path) {
             Ok(contents) => {
-                println!("File contents: {}", contents); // Debug print
                 contents // Return the file contents
             }
             Err(e) => {
-                println!("Error reading file: {}", e); // Debug print
                 format!("Error reading file: {}", e)
             }
         }
@@ -69,15 +67,20 @@ fn fetch_doc(lang: String, category: String, name: String) -> String {
 }
 
 #[tauri::command]
-fn update_settings(language: &str, code_theme: &str) {
+fn update_settings(language: String, code_theme: String) {
     // Create a new settings object
     let new_settings = Settings {
         language: language.to_string(),
         code_theme: code_theme.to_string(),
     };
 
+    // Print the new settings
+    println!("New settings: {:?}", new_settings);
+
     // Define the file path
-    let file_path = "../settings.json";
+    let file_path = "settings.json";
+
+    // Open or create the file
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
@@ -85,12 +88,16 @@ fn update_settings(language: &str, code_theme: &str) {
         .open(file_path)
         .unwrap();
 
+    let debug_read = fs::read_to_string(file_path).unwrap();
+    println!("Debug read: {:?}", debug_read);
+
     // Write the updated settings back to the file
     let json_data = serde_json::to_string_pretty(&new_settings).unwrap();
-    file.set_len(0).unwrap(); // Clear existing content
+    file.set_len(0).unwrap();
     file.write_all(json_data.as_bytes()).unwrap();
 
-    println!("Settings updated successfully"); // Debug print
+    // Final success message
+    println!("Settings updated successfully");
 }
 
 #[tauri::command]
@@ -107,8 +114,6 @@ fn get_settings() -> Settings {
 
     // Deserialize the JSON data into the Settings struct
     let settings: Settings = serde_json::from_str(&contents).unwrap();
-
-    println!("{:?}", settings);
 
     settings
 }

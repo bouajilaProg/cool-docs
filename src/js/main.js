@@ -27,7 +27,7 @@ async function getDocs() {
   //fetch the settings
   const { language, code_theme } = await invoke('get_settings');
   const codeThemeSetter = document.getElementById('code-theme');
-  codeThemeSetter.value = `lib/highlightjs/code-theme/${code_theme}.css`;
+  codeThemeSetter.setAttribute("href", `lib/highlightjs/code-theme/${code_theme}.css`);
 
   let docHtml = String();
 
