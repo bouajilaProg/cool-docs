@@ -144,6 +144,8 @@ body {
 }
 
 .side-bar footer a {
+
+  width: 100%;
   display: flex;
   align-items: center;
   color: #555;

@@ -1,0 +1,37 @@
+<document>
+  <name>Dynamic Programming Basics</name>
+  <category>Algorithms</category>
+  <creator>bouajila</creator>
+  <content>
+    <item>
+      <title>Introduction to Dynamic Programming</title>
+      <text>Dynamic programming (DP) is a method for solving complex problems by breaking them down
+        into simpler subproblems. It is used when the problem can be divided into overlapping
+        subproblems with optimal substructure.</text>
+      <code> def fibonacci(n):<br /> if n &lt;= 1:<br /> return n<br /> memo = {0: 0, 1: 1}<br />
+        for i in range(2, n + 1):<br /> memo[i] = memo[i - 1] + memo[i - 2]<br /> return memo[n] </code>
+    </item>
+    <item>
+      <title>Memoization</title>
+      <text>Memoization is a technique where you store the results of expensive function calls and
+        reuse them when the same inputs occur again. This is useful in dynamic programming to avoid
+        recomputation.</text>
+      <code> def fibonacci_memo(n, memo={}) :<br /> if n in memo:<br /> return memo[n]<br /> if n
+        &lt;= 1:<br /> return n<br /> memo[n] = fibonacci_memo(n - 1, memo) + fibonacci_memo(n - 2,
+        memo)<br /> return memo[n] </code>
+      <text>In this example, the results of the Fibonacci function are stored in a dictionary (memo)
+        to avoid recalculating previously computed values.</text>
+    </item>
+    <item>
+      <title>Bottom-Up Approach</title>
+      <text>The bottom-up approach solves subproblems first and then uses their solutions to solve
+        larger subproblems. This approach eliminates recursion and can be more efficient.</text>
+      <code> def fibonacci_bottom_up(n):<br /> if n &lt;= 1:<br /> return n<br /> dp = [0] * (n + 1)<br />
+        dp[1] = 1<br /> for i in range(2, n + 1):<br /> dp[i] = dp[i - 1] + dp[i - 2]<br /> return
+        dp[n] </code>
+      <code> def fibonacci_bottom_up_optimized(n):<br /> if n &lt;= 1:<br /> return n<br /> prev,
+        curr = 0, 1<br /> for i in range(2, n + 1):<br /> prev, curr = curr, prev + curr<br />
+        return curr </code>
+    </item>
+  </content>
+</document>

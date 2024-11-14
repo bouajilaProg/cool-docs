@@ -19,19 +19,16 @@ async function getSettings() {
 
 }
 
-alert(form)
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const language = document.getElementById('language').value;
   const codeTheme = document.getElementById('code-theme').value;
-  alert("Language: " + language + " Code Theme: " + codeTheme);
 
 
 
   // Update the storage json through invoking the Tauri command.
   await invoke('update_settings', { language, codeTheme });
-  alert('Settings updated');
 });
 
 document.addEventListener('DOMContentLoaded', () => {

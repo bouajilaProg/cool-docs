@@ -3,7 +3,7 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
 use std::path::Path;
 
-const REPO_PATH: &str = "./repo";
+const REPO_PATH: &str = "data/repo";
 
 #[derive(Debug, Serialize)]
 struct Registry {
@@ -19,7 +19,7 @@ struct Settings {
 
 #[tauri::command]
 fn get_registry(lang: String) -> Vec<Registry> {
-    let path = format!("repo/{}", lang); // Going up one level to access `repo`
+    let path = format!("data/repo/{}", lang); // Going up one level to access `repo`
 
     let mut registries: Vec<Registry> = Vec::new();
 
@@ -78,7 +78,7 @@ fn update_settings(language: String, code_theme: String) {
     println!("New settings: {:?}", new_settings);
 
     // Define the file path
-    let file_path = "settings.json";
+    let file_path = "data/settings.json";
 
     // Open or create the file
     let mut file = OpenOptions::new()
@@ -103,7 +103,7 @@ fn update_settings(language: String, code_theme: String) {
 #[tauri::command]
 fn get_settings() -> Settings {
     // Define the file path
-    let file_path = "settings.json";
+    let file_path = "data/settings.json";
 
     // Open the file
     let mut file = File::open(file_path).unwrap();
