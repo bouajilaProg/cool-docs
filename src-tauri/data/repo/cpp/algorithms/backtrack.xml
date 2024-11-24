@@ -8,38 +8,84 @@
       <text>Backtracking is a general algorithmic technique used to find all (or some) solutions to
         a problem by incrementally building candidates and abandoning them as soon as it is
         determined that they cannot lead to a valid solution.</text>
-      <code> def solve_n_queens(n):<br /> board = [-1] * n<br /> def is_safe(board, row, col):<br />
-        for i in range(row):<br /> if board[i] == col or abs(board[i] - col) == row - i:<br />
-        return False<br /> return True<br /> def solve(row):<br /> if row == n:<br /> return
-        [board[:]]<br /> solutions = []<br /> for col in range(n):<br /> if is_safe(board, row,
-        col):<br /> board[row] = col<br /> solutions.extend(solve(row + 1))<br /> board[row] = -1<br />
-        return solutions<br /> return solve(0) </code>
+      <code>
+        def solve_n_queens(n):
+          board = [-1] * n
+          def is_safe(board, row, col):
+            for i in range(row):
+              if board[i] == col or abs(board[i] - col) == row - i:
+                return False
+            return True
+          def solve(row):
+            if row == n:
+              return [board[:]]
+            solutions = []
+            for col in range(n):
+              if is_safe(board, row, col):
+                board[row] = col
+                solutions.extend(solve(row + 1))
+                board[row] = -1
+            return solutions
+          return solve(0)
+      </code>
     </item>
     <item>
       <title>Backtracking Example: N-Queens Problem</title>
       <text>The N-Queens problem is a classic backtracking problem. The goal is to place N queens on
         an N x N chessboard such that no two queens threaten each other.</text>
-      <code> def n_queens_backtracking(n):<br /> def is_safe(board, row, col):<br /> for i in
-        range(row):<br /> if board[i] == col or abs(board[i] - col) == row - i:<br /> return False<br />
-        return True<br /> def solve(row, board, solutions):<br /> if row == n:<br />
-        solutions.append(board[:])<br /> return<br /> for col in range(n):<br /> if is_safe(board,
-        row, col):<br /> board[row] = col<br /> solve(row + 1, board, solutions)<br /> board[row] =
-        -1<br /> def solve_n_queens(n):<br /> solutions = []<br /> solve(0, [-1] * n, solutions)<br />
-        return solutions </code>
+      <code>
+        def n_queens_backtracking(n):
+          def is_safe(board, row, col):
+            for i in range(row):
+              if board[i] == col or abs(board[i] - col) == row - i:
+                return False
+            return True
+          def solve(row, board, solutions):
+            if row == n:
+              solutions.append(board[:])
+              return
+            for col in range(n):
+              if is_safe(board, row, col):
+                board[row] = col
+                solve(row + 1, board, solutions)
+                board[row] = -1
+          def solve_n_queens(n):
+            solutions = []
+            solve(0, [-1] * n, solutions)
+            return solutions
+      </code>
     </item>
     <item>
       <title>Backtracking with Pruning</title>
       <text>Pruning is the process of stopping the exploration of a branch as soon as it is
         determined that it cannot lead to a solution. This optimization reduces the size of the
         search space in backtracking algorithms.</text>
-      <code> def sudoku_backtracking(board):<br /> def is_safe(board, row, col, num):<br /> for i in
-        range(9):<br /> if board[row][i] == num or board[i][col] == num:<br /> return False<br />
-        start_row, start_col = 3 * (row // 3), 3 * (col // 3)<br /> for i in range(start_row,
-        start_row + 3):<br /> for j in range(start_col, start_col + 3):<br /> if board[i][j] == num:<br />
-        return False<br /> return True<br /> def solve(board):<br /> for row in range(9):<br /> for
-        col in range(9):<br /> if board[row][col] == 0:<br /> for num in range(1, 10):<br /> if
-        is_safe(board, row, col, num):<br /> board[row][col] = num<br /> if solve(board):<br />
-        return True<br /> board[row][col] = 0<br /> return False<br /> return solve(board) </code>
+      <code>
+        def sudoku_backtracking(board):
+          def is_safe(board, row, col, num):
+            for i in range(9):
+              if board[row][i] == num or board[i][col] == num:
+                return False
+            start_row, start_col = 3 * (row // 3), 3 * (col // 3)
+            for i in range(start_row, start_row + 3):
+              for j in range(start_col, start_col + 3):
+                if board[i][j] == num:
+                  return False
+            return True
+          def solve(board):
+            for row in range(9):
+              for col in range(9):
+                if board[row][col] == 0:
+                  for num in range(1, 10):
+                    if is_safe(board, row, col, num):
+                      board[row][col] = num
+                      if solve(board):
+                        return True
+                      board[row][col] = 0
+                  return False
+            return True
+          return solve(board)
+      </code>
     </item>
   </content>
 </document>

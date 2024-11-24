@@ -1,0 +1,58 @@
+<document>
+  <name>Depth-First Search (DFS) in C++</name>
+  <category>Algorithms</category>
+  <creator>bouajila</creator>
+  <content>
+    <item>
+      <title>Introduction to DFS</title>
+      <text>Depth-First Search (DFS) is a graph traversal algorithm that explores as far as possible
+        along a branch before backtracking. It is commonly used for pathfinding, detecting cycles,
+        and solving connected component problems.</text>
+      <code>
+        // DFS in a graph
+        #include &lt;iostream&gt;
+        #include &lt;vector&gt;
+
+        void dfs(int node, const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adj,
+        std::vector&lt;bool&gt;&amp; visited) {
+        visited[node] = true;
+        std::cout &lt;&lt; node &lt;&lt; " ";
+
+        for (int neighbor : adj[node]) {
+        if (!visited[neighbor]) {
+        dfs(neighbor, adj, visited);
+        }
+        }
+        }
+
+        int main() {
+        std::vector&lt;std::vector&lt;int&gt;&gt; adj = {
+        {1, 2}, // Neighbors of node 0
+        {0, 3, 4}, // Neighbors of node 1
+        {0, 4}, // Neighbors of node 2
+        {1, 5}, // Neighbors of node 3
+        {1, 2, 5}, // Neighbors of node 4
+        {3, 4} // Neighbors of node 5
+        };
+
+        std::vector&lt;bool&gt; visited(adj.size(), false);
+
+        std::cout &lt;&lt; "DFS starting from node 0: ";
+        dfs(0, adj, visited);
+
+        return 0;
+        }
+      </code>
+    </item>
+    <item>
+      <title>Applications of DFS</title>
+      <text>DFS is widely used in solving various graph-related problems, such as:</text>
+      <list>
+        <li>Detecting cycles in a graph.</li>
+        <li>Finding connected components in an undirected graph.</li>
+        <li>Topological sorting in a Directed Acyclic Graph (DAG).</li>
+        <li>Solving maze problems and finding paths in puzzles.</li>
+      </list>
+    </item>
+  </content>
+</document>

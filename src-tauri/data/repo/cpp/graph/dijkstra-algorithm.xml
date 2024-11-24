@@ -1,0 +1,89 @@
+<document>
+  <name>Dijkstra's Algorithm in C++</name>
+  <category>Algorithms</category>
+  <creator>bouajila</creator>
+  <content>
+    <item>
+      <title>Introduction to Dijkstra's Algorithm</title>
+      <text>Dijkstra's Algorithm is used to find the shortest path from a source vertex to all other
+        vertices in a graph with non-negative edge weights. It is commonly implemented using a
+        priority queue for efficiency.</text>
+      <code>
+        #include &lt;iostream&gt;
+        #include &lt;vector&gt;
+        #include &lt;queue&gt;
+        #include &lt;utility&gt;
+        #include &lt;limits&gt;
+
+        const int INF = std::numeric_limits&lt;int&gt;::max();
+
+        void dijkstra(int start, const std::vector&lt;std::vector&lt;std::pair&lt;int,
+        int&gt;&gt;&gt;&amp; graph) {
+        int n = graph.size();
+        std::vector&lt;int&gt; distance(n, INF);
+        std::priority_queue&lt;std::pair&lt;int, int&gt;, std::vector&lt;std::pair&lt;int,
+        int&gt;&gt;, std::greater&lt;&gt;&gt; pq;
+
+        distance[start] = 0;
+        pq.push({0, start});
+
+        while (!pq.empty()) {
+        int dist = pq.top().first;
+        int node = pq.top().second;
+        pq.pop();
+
+        if (dist &gt; distance[node]) continue;
+
+        for (const auto&amp; neighbor : graph[node]) {
+        int next_node = neighbor.first;
+        int weight = neighbor.second;
+
+        if (distance[node] + weight &lt; distance[next_node]) {
+        distance[next_node] = distance[node] + weight;
+        pq.push({distance[next_node], next_node});
+        }
+        }
+        }
+
+        std::cout &lt;&lt; "Shortest distances from node " &lt;&lt; start &lt;&lt; ":\n";
+        for (int i = 0; i &lt; n; ++i) {
+        if (distance[i] == INF) {
+        std::cout &lt;&lt; "Node " &lt;&lt; i &lt;&lt; ": Unreachable\n";
+        } else {
+        std::cout &lt;&lt; "Node " &lt;&lt; i &lt;&lt; ": " &lt;&lt; distance[i] &lt;&lt; "\n";
+        }
+        }
+        }
+
+        int main() {
+        int n = 6; // Number of nodes
+        std::vector&lt;std::vector&lt;std::pair&lt;int, int&gt;&gt;&gt; graph(n);
+
+        // Graph represented as adjacency list: (neighbor, weight)
+        graph[0].push_back({1, 4});
+        graph[0].push_back({2, 1});
+        graph[1].push_back({3, 1});
+        graph[2].push_back({1, 2});
+        graph[2].push_back({3, 5});
+        graph[3].push_back({4, 3});
+        graph[4].push_back({5, 2});
+        graph[3].push_back({5, 1});
+
+        dijkstra(0, graph);
+
+        return 0;
+        }
+      </code>
+    </item>
+    <item>
+      <title>Applications of Dijkstra's Algorithm</title>
+      <text>Dijkstra's Algorithm is widely used in various fields, including:</text>
+      <list>
+        <li>Finding the shortest path in road networks (e.g., GPS navigation).</li>
+        <li>Network routing protocols to determine optimal data paths.</li>
+        <li>Solving problems in weighted graphs, such as resource allocation.</li>
+        <li>Game development for finding optimal paths in game maps.</li>
+      </list>
+    </item>
+  </content>
+</document>

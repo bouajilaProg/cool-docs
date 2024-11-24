@@ -1,0 +1,119 @@
+<document>
+  <name>Bellman-Ford Algorithm in C++</name>
+  <category>Algorithms</category>
+  <creator>bouajila</creator>
+  <content>
+    <item>
+      <title>Introduction to Bellman-Ford Algorithm</title>
+      <text>The Bellman-Ford Algorithm is used to find the shortest path from a single source vertex
+        to all other vertices in a weighted graph. Unlike Dijkstra's algorithm, it works with graphs
+        that contain negative edge weights. If the graph has a negative weight cycle, the algorithm
+        detects it.</text>
+      <code>
+
+        <document>
+          <name>Bellman-Ford Algorithm in C++</name>
+          <category>Algorithms</category>
+          <creator>bouajila</creator>
+          <content>
+            <item>
+              <title>Introduction to Bellman-Ford Algorithm</title>
+              <text>The Bellman-Ford Algorithm is used to find the shortest path from a single
+                source vertex
+                to all other vertices in a weighted graph. Unlike Dijkstra's algorithm, it works
+                with graphs
+                that contain negative edge weights. If the graph has a negative weight cycle, the
+                algorithm
+                detects it.</text>
+              <code>
+                // C++ implementation of the Bellman-Ford algorithm
+                #include &lt;iostream&gt;
+                #include &lt;vector&gt;
+                #include &lt;tuple&gt;
+                #include &lt;limits&gt;
+
+                const int INF = std::numeric_limits&lt;int&gt;::max();
+
+                void bellmanFord(int start, int n, const std::vector&lt;std::tuple&lt;int, int,
+                int&gt;&gt;&amp; edges) {
+                std::vector&lt;int&gt; distance(n, INF);
+                distance[start] = 0;
+
+                // Relax all edges |V| - 1 times
+                for (int i = 0; i &lt; n - 1; ++i) {
+                for (const auto&amp; edge : edges) {
+                int u, v, weight;
+                std::tie(u, v, weight) = edge;
+                if (distance[u] != INF &amp;&amp; distance[u] + weight &lt; distance[v]) {
+                distance[v] = distance[u] + weight;
+                }
+                }
+                }
+
+                // Check for negative weight cycles
+                for (const auto&amp; edge : edges) {
+                int u, v, weight;
+                std::tie(u, v, weight) = edge;
+                if (distance[u] != INF &amp;&amp; distance[u] + weight &lt; distance[v]) {
+                std::cout &lt;&lt; "Graph contains a negative weight cycle.\n";
+                return;
+                }
+                }
+
+                // Output the shortest distances
+                std::cout &lt;&lt; "Shortest distances from node " &lt;&lt; start &lt;&lt; ":\n";
+                for (int i = 0; i &lt; n; ++i) {
+                if (distance[i] == INF) {
+                std::cout &lt;&lt; "Node " &lt;&lt; i &lt;&lt; ": Unreachable\n";
+                } else {
+                std::cout &lt;&lt; "Node " &lt;&lt; i &lt;&lt; ": " &lt;&lt; distance[i] &lt;&lt;
+                "\n";
+                }
+                }
+                }
+
+                int main() {
+                int n = 5; // Number of nodes
+                std::vector&lt;std::tuple&lt;int, int, int&gt;&gt; edges = {
+                {0, 1, -1},
+                {0, 2, 4},
+                {1, 2, 3},
+                {1, 3, 2},
+                {1, 4, 2},
+                {3, 2, 5},
+                {3, 1, 1},
+                {4, 3, -3}
+                };
+
+                bellmanFord(0, n, edges);
+
+                return 0;
+                }
+              </code>
+            </item>
+            <item>
+              <title>Applications of Bellman-Ford Algorithm</title>
+              <text>The Bellman-Ford Algorithm is commonly used in scenarios where:</text>
+              <list>
+                <li>Graphs contain negative edge weights.</li>
+                <li>Detection of negative weight cycles is required.</li>
+                <li>Routing protocols in computer networks (e.g., RIP protocol).</li>
+                <li>Analyzing financial graphs where edges represent profit/loss.</li>
+              </list>
+            </item>
+          </content>
+        </document>
+      </code>
+    </item>
+    <item>
+      <title>Applications of Bellman-Ford Algorithm</title>
+      <text>The Bellman-Ford Algorithm is commonly used in scenarios where:</text>
+      <list>
+        <li>Graphs contain negative edge weights.</li>
+        <li>Detection of negative weight cycles is required.</li>
+        <li>Routing protocols in computer networks (e.g., RIP protocol).</li>
+        <li>Analyzing financial graphs where edges represent profit/loss.</li>
+      </list>
+    </item>
+  </content>
+</document>

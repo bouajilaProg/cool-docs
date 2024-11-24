@@ -28,7 +28,7 @@ Cool Docs is a fast, cross-platform desktop application designed for competitive
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/cool-docs.git
+   git clone https://github.com/bouajilaProg/cool-docs.git
    ```
 
 2. Navigate to the project directory and run the build for Linux:
@@ -49,7 +49,7 @@ Cool Docs is a fast, cross-platform desktop application designed for competitive
    and search for your system to find the appropriate build.
 
 5. **Setting Up Data**: 
-   Create a `/data/repo/<your languages>` directory, and inside it, add the XML files containing your documentation.
+   Create a `/data/repo/<your language>` directory, and inside it, add the XML files containing your documentation.
 
   for now we only support c++ , python , java and c#.
 

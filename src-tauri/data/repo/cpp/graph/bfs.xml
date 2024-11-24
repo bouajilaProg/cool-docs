@@ -1,0 +1,66 @@
+<document>
+  <name>Breadth-First Search (BFS) in C++</name>
+  <category>Algorithms</category>
+  <creator>bouajila</creator>
+  <content>
+    <item>
+      <title>Introduction to BFS</title>
+      <text>Breadth-First Search (BFS) is a graph traversal algorithm that explores all neighbors at
+        the present depth prior to moving on to nodes at the next depth level. It is commonly used
+        in unweighted graphs to find the shortest path.</text>
+      <code>
+        // BFS in an unweighted graph
+        #include &lt;iostream&gt;
+        #include &lt;vector&gt;
+        #include &lt;queue&gt;
+
+        void bfs(int start, const std::vector&lt;std::vector&lt;int&gt;&gt;&amp; adj) {
+        std::vector&lt;bool&gt; visited(adj.size(), false);
+        std::queue&lt;int&gt; q;
+
+        visited[start] = true;
+        q.push(start);
+
+        while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+        std::cout &lt;&lt; node &lt;&lt; " ";
+
+        for (int neighbor : adj[node]) {
+        if (!visited[neighbor]) {
+        visited[neighbor] = true;
+        q.push(neighbor);
+        }
+        }
+        }
+        }
+
+        int main() {
+        std::vector&lt;std::vector&lt;int&gt;&gt; adj = {
+        {1, 2}, // Neighbors of node 0
+        {0, 3, 4}, // Neighbors of node 1
+        {0, 4}, // Neighbors of node 2
+        {1, 5}, // Neighbors of node 3
+        {1, 2, 5}, // Neighbors of node 4
+        {3, 4} // Neighbors of node 5
+        };
+
+        std::cout &lt;&lt; "BFS starting from node 0: ";
+        bfs(0, adj);
+
+        return 0;
+        }
+      </code>
+    </item>
+    <item>
+      <title>Applications of BFS</title>
+      <text>BFS is widely used in solving various graph-related problems, such as:</text>
+      <list>
+        <li>Finding the shortest path in an unweighted graph.</li>
+        <li>Detecting connected components in an undirected graph.</li>
+        <li>Solving puzzles like finding the shortest moves in a chessboard knight problem.</li>
+        <li>Performing level-order traversal in a tree.</li>
+      </list>
+    </item>
+  </content>
+</document>
