@@ -1,170 +1,319 @@
 const { invoke } = window.__TAURI__.core;
 
+let availableLanguages = [];
+let activeLanguage = null;
 
 function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-async function getDocs() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
+function showLoading() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+  }
+}
 
-  const lang = urlParams.get('lang');
+function hideLoading() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+  }
+}
+
+function applyCodeTheme(theme) {
+  const codeThemeSetter = document.getElementById('code-theme');
+  if (codeThemeSetter) {
+    codeThemeSetter.setAttribute('href', `lib/highlightjs/code-theme/${theme}.css`);
+  }
+}
+
+async function getLanguages() {
+  return await invoke('get_languages');
+}
+
+async function resolveLanguage() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  const settings = await invoke('get_settings');
+  const languages = await getLanguages();
+
+  if (languages.length === 0) {
+    return { languages, active: null };
+  }
+
+  const preferred = urlLang || settings.language;
+  const active = languages.includes(preferred) ? preferred : languages[0];
+
+  return { languages, active };
+}
+
+function getCurrentLang() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('lang') || activeLanguage;
+}
+
+function hasDocs(registry) {
+  if (!Array.isArray(registry)) {
+    return false;
+  }
+  return registry.some(entry => Array.isArray(entry.commands) && entry.commands.length > 0);
+}
+
+async function getDocs() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const lang = getCurrentLang();
   const commandName = urlParams.get('name');
   const categoryName = urlParams.get('category');
 
-  console.log(lang, categoryName, commandName);
-
   const rootElement = document.getElementById('root');
 
-  if (lang === null || commandName === null || categoryName === null) {
-    rootElement.innerHTML = "<h1>Not found</h1>";
-    return;
-  }
-
-  if (window.location.pathname !== "/Docs.html") {
-    return;
-  }
-
-
-  //fn fetch_doc(lang: String, category: String, name: String) -> String {
-  const xmlFile = await invoke('fetch_doc', { lang: lang, category: categoryName, name: commandName });
-  const doc = new DOMParser().parseFromString(xmlFile, "text/xml");
-
-  if (doc.querySelector('name') === null) {
-    rootElement.innerHTML = "<h1>Not found</h1>";
-    return;
-  }
-
-  //fetch the settings
-  const { language, code_theme } = await invoke('get_settings');
-  const codeThemeSetter = document.getElementById('code-theme');
-  codeThemeSetter.setAttribute("href", `lib/highlightjs/code-theme/${code_theme}.css`);
-
-  let docHtml = String();
-
-  const mainTitle = doc.querySelector('name').textContent;
-  const category = doc.querySelector('category').textContent;
-  const creator = doc.querySelector('creator').textContent;
-  const items = doc.querySelectorAll('item');
-
-  docHtml += `<h1 class="title">${category} / ${mainTitle}</h1>`;
-  docHtml += `<p class="creator">${creator}</p>`;
-  docHtml += `<div class="spacer"></div>`;
-
-  items.forEach(item => {
-    //loop around children
-    for (let i = 0; i < item.children.length; i++) {
-      const child = item.children[i];
-      if (child.tagName === 'title') {
-        docHtml += `<h2 class="item-title">${child.textContent}</h2>`;
-      } else if (child.tagName === 'text') {
-        docHtml += `<p class="paragraph">${child.textContent}</p>`;
-      } else if (child.tagName === 'code') {
-        docHtml += `<pre><code>${child.textContent.trim()}</code></pre>`;
-      }
+  if (!lang) {
+    if (rootElement) {
+      rootElement.innerHTML = '<h1>No documentation found</h1>';
     }
-    docHtml += `<div class="spacer"></div>`;
-  });
-
-  if (docHtml === "") {
-    docHtml = "<h1>Not found</h1>";
+    hideLoading();
+    return;
   }
-  rootElement.innerHTML = docHtml;
-  hljs.highlightAll();
+
+  if (commandName === null || categoryName === null) {
+    if (rootElement) {
+      rootElement.innerHTML = '<h1>Select a document from the sidebar</h1>';
+    }
+    hideLoading();
+    return;
+  }
+
+  if (window.location.pathname !== '/Docs.html') {
+    hideLoading();
+    return;
+  }
+
+  try {
+    showLoading();
+
+    const [xmlFile, settings] = await Promise.all([
+      invoke('fetch_doc', { lang: lang, category: categoryName, name: commandName }),
+      invoke('get_settings')
+    ]);
+
+    const doc = new DOMParser().parseFromString(xmlFile, 'text/xml');
+
+    if (doc.querySelector('name') === null) {
+      if (rootElement) {
+        rootElement.innerHTML = '<h1>Document not found</h1>';
+      }
+      hideLoading();
+      return;
+    }
+
+    applyCodeTheme(settings.code_theme);
+
+    let docHtml = String();
+
+    const mainTitle = doc.querySelector('name').textContent;
+    const category = doc.querySelector('category').textContent;
+    const creator = doc.querySelector('creator').textContent;
+    const items = doc.querySelectorAll('item');
+
+    docHtml += `<h1 class="title">${category} / ${mainTitle}</h1>`;
+    docHtml += `<p class="creator">${creator}</p>`;
+    docHtml += '<div class="spacer"></div>';
+
+    items.forEach(item => {
+      for (let i = 0; i < item.children.length; i++) {
+        const child = item.children[i];
+        if (child.tagName === 'title') {
+          docHtml += `<h2 class="item-title">${child.textContent}</h2>`;
+        } else if (child.tagName === 'text') {
+          docHtml += `<p class="paragraph">${child.textContent}</p>`;
+        } else if (child.tagName === 'code') {
+          docHtml += `<pre><code>${child.textContent.trim()}</code></pre>`;
+        }
+      }
+      docHtml += '<div class="spacer"></div>';
+    });
+
+    if (docHtml === '') {
+      docHtml = '<h1>Document not found</h1>';
+    }
+    if (rootElement) {
+      rootElement.innerHTML = docHtml;
+    }
+    hljs.highlightAll();
+  } catch (error) {
+    console.error('Error loading document:', error);
+    if (rootElement) {
+      rootElement.innerHTML = '<h1>Error loading document</h1>';
+    }
+  } finally {
+    hideLoading();
+  }
 }
 
-async function getRegister() {
-  let lang = "cpp";
-  if (window.location.search.includes("lang")) {
-    lang = window.location.search.split("&")[0].split("=")[1];
-  }
-
-
-  return await invoke("get_registry", { lang });
+async function getRegister(lang) {
+  return await invoke('get_registry', { lang });
 }
 
 function goTo(link) {
-  const [_, lang, category, name] = link.split("/");
-  if (window.location.pathname.split("/")[1] !== "Docs.html") {
-    console.log("redirecting");
-    window.location.href = `/Docs.html?lang=${lang}&category=${category}&name=${name.split(".")[0]} `;
+  const [_, lang, category, name] = link.split('/');
+  if (window.location.pathname.split('/')[1] !== 'Docs.html') {
+    window.location.href = `/Docs.html?lang=${lang}&category=${category}&name=${name.split('.')[0]}`;
   } else {
-    history.pushState({}, "", `/Docs.html?lang=${lang}&category=${category}&name=${name.split(".")[0]}`);
-
-    console.log("pushing");
+    showLoading();
+    history.pushState({}, '', `/Docs.html?lang=${lang}&category=${category}&name=${name.split('.')[0]}`);
     getDocs();
   }
 }
 
-async function updateSide() {
-  const register = await getRegister();
+async function updateSide(lang) {
+  const register = await getRegister(lang);
 
-  if (register.length === 0) {
-    return; // If the register is empty, do nothing
+  if (!hasDocs(register)) {
+    return null;
   }
+
   const sideBarElement = document.getElementById('side-root');
   if (!sideBarElement) {
-    return; // If the sidebar element doesn't exist, do nothing
+    return null;
   }
 
-  let sidebar = "";
+  let sidebar = '';
 
-  console.log(register);
-  //could've used d but i did this first and it worked so i didn't bother changing it
   register.forEach(subRegistry => {
-    sidebar += ` <div class= "link-list" > <span>${capitalize(subRegistry.list_title)}</span> <ul>`;
+    sidebar += `<div class="link-list"><span>${capitalize(subRegistry.list_title)}</span><ul>`;
 
     subRegistry.commands.forEach(command => {
-      const link = `/cpp/${subRegistry.list_title}/${command}`;
-      sidebar += `<li><button class="link-btn" data-link="${link}">${capitalize(command.split(".")[0])}</button></li>`;
+      const link = `/${lang}/${subRegistry.list_title}/${command}`;
+      sidebar += `<li><button class="link-btn" data-link="${link}">${capitalize(command.split('.')[0])}</button></li>`;
     });
 
-    sidebar += `</ul> </div > `;
+    sidebar += '</ul></div>';
   });
 
   sideBarElement.innerHTML = sidebar;
 
-
-
-  const buttons = document.querySelectorAll(".link-btn");
+  const buttons = document.querySelectorAll('.link-btn');
   buttons.forEach(button => {
-    button.addEventListener("click", () => {
-      goTo(button.getAttribute("data-link"));
+    button.addEventListener('click', () => {
+      goTo(button.getAttribute('data-link'));
     });
   });
 
   return register[0];
 }
 
+async function selectLanguage(newLang) {
+  activeLanguage = newLang;
+  const register = await getRegister(newLang);
 
-document.addEventListener("DOMContentLoaded", async () => {  // Use async function to await updateSide()
+  if (!hasDocs(register)) {
+    if (window.location.pathname === '/Docs.html') {
+      const rootElement = document.getElementById('root');
+      if (rootElement) {
+        rootElement.innerHTML = '<p>No documentation found for this language.</p>';
+      }
+    }
+    hideLoading();
+    return;
+  }
+
+  await updateSide(newLang);
+
+  const first = register[0];
+  const firstName = first.commands[0].split('.')[0];
+  const targetUrl = `/Docs.html?lang=${newLang}&category=${first.list_title}&name=${firstName}`;
+
+  if (window.location.pathname === '/Settings.html') {
+    window.location.href = targetUrl;
+    return;
+  }
+
+  history.replaceState({}, '', targetUrl);
+  await getDocs();
+}
+
+function setupLanguageSwitcher(languages, active) {
+  const langSwitcher = document.getElementById('lang-switcher');
+  if (!langSwitcher) {
+    return;
+  }
+
+  langSwitcher.innerHTML = '';
+
+  languages.forEach(lang => {
+    const option = document.createElement('option');
+    option.value = lang;
+    option.textContent = capitalize(lang);
+    langSwitcher.appendChild(option);
+  });
+
+  langSwitcher.value = active;
+  langSwitcher.onchange = async (event) => {
+    const newLang = event.target.value;
+    showLoading();
+    await selectLanguage(newLang);
+  };
+}
+
+window.addEventListener('popstate', () => {
+  getDocs();
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const firstSubRegister = await updateSide();
+    showLoading();
 
-    if (window.location.pathname === "/Settings.html") {
+    const { languages, active } = await resolveLanguage();
+    availableLanguages = languages;
+    activeLanguage = active;
+
+    if (window.location.pathname === '/Docs.html' && availableLanguages.length === 0) {
+      window.location.replace('/Settings.html?empty=1');
+      return;
+    }
+
+    if (availableLanguages.length === 0) {
+      hideLoading();
+      return;
+    }
+
+    setupLanguageSwitcher(availableLanguages, activeLanguage);
+
+    const firstSubRegister = await updateSide(activeLanguage);
+
+    if (window.location.pathname === '/Settings.html') {
+      hideLoading();
       return;
     }
 
     if (firstSubRegister === undefined || firstSubRegister === null) {
       const rootElement = document.getElementById('root');
-      rootElement.innerHTML = "<p>no doc was found for this language</p>";
-
+      if (rootElement) {
+        rootElement.innerHTML = '<p>No documentation found. Import documentation in Settings.</p>';
+      }
+      hideLoading();
       return;
     }
-    const lang = window.location.search.split("&")[0].split("=")[1];
 
-    // update the settings button href
-    const settingsButton = document.getElementById("settings-btn");
-    settingsButton.setAttribute("href", `/Settings.html?lang=${lang}`);
+    const lang = getCurrentLang() || activeLanguage;
 
-    // if first time loading the page, redirect to the first command
-    if (window.location.search.includes("name") == false) {
-      window.location.href = `/Docs.html?lang=${lang}&category=${firstSubRegister.list_title}&name=${firstSubRegister.commands[0].split(".")[0]} `
+    const settingsButton = document.getElementById('settings-btn');
+    if (settingsButton) {
+      settingsButton.setAttribute('href', `/Settings.html?lang=${lang}`);
     }
-    getDocs();  // Call getDocs() to get the documentation
+
+    if (!window.location.search.includes('name')) {
+      history.replaceState({}, '', `/Docs.html?lang=${lang}&category=${firstSubRegister.list_title}&name=${firstSubRegister.commands[0].split('.')[0]}`);
+    }
+
+    await getDocs();
   } catch (error) {
-    alert("Error during initialization: " + error);  // Alert error message if there's an issue
+    console.error('Error during initialization:', error);
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.innerHTML = '<p>Error loading documentation. Please check your data files.</p>';
+    }
+    hideLoading();
   }
 });
-
