@@ -49,6 +49,32 @@ body {
   border-radius: 5px;
 }
 
+.lang-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.lang-switcher label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.lang-switcher select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+}
+
 .link-container {
   flex-grow: 1;
   overflow-y: scroll;
@@ -176,4 +202,3 @@ main h2 {
   font-size: 24px;
   color: #333;
 }
-

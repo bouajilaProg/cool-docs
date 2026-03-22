@@ -6,20 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cool Docs</title>
   <link rel="stylesheet" href="css/index.css">
+  <script>
+    // Redirect to docs immediately
+    window.location.href = '/Docs.html';
+  </script>
 </head>
 
 <body>
-  <div class="image-container">
-    <img src="logo.png" alt="Image">
-  </div>
-  <div class="button-container">
-
-    <a href="Docs.html?lang=cpp" class="button">C++</a>
-    <a href="Docs.html?lang=python" class="button ">Python</a>
-    <a href="Docs.html?lang=java" class="button ">Java</a>
-    <a href="Docs.html?lang=csharp" class="button ">C#</a>
-
-
+  <!-- Loading screen while redirecting -->
+  <div class="loading-container">
+    <img src="logo.png" alt="Cool Docs">
+    <div class="loading-spinner"></div>
+    <p>Loading...</p>
   </div>
 </body>
 

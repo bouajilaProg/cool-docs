@@ -1,0 +1,46 @@
+[
+  {
+    "name": "HTTP Basics",
+    "category": "networking",
+    "creator": "Cool Docs",
+    "lang": "backend",
+    "items": [
+      {
+        "title": "Request lifecycle",
+        "text": "A request moves from DNS resolution to a TCP handshake, then to an HTTP exchange. Keep payloads small and cacheable when possible.",
+        "code": "curl -i https://api.example.com/health"
+      },
+      {
+        "title": "Status codes",
+        "text": "Use 2xx for success, 4xx for client errors, and 5xx for server errors.",
+        "code": "HTTP/1.1 204 No Content"
+      }
+    ]
+  },
+  {
+    "name": "Database Migrations",
+    "category": "data",
+    "creator": "Cool Docs",
+    "lang": "backend",
+    "items": [
+      {
+        "title": "Migration checklist",
+        "text": "Always run migrations in a staging environment first and keep rollback scripts ready.",
+        "code": "npm run db:migrate"
+      }
+    ]
+  },
+  {
+    "name": "Component Guidelines",
+    "category": "ui",
+    "creator": "Cool Docs",
+    "lang": "frontend",
+    "items": [
+      {
+        "title": "Naming conventions",
+        "text": "Use descriptive, domain-focused component names and keep them small and composable.",
+        "code": "function UserProfileCard(props) {\n  return <div className=\"card\" />;\n}"
+      }
+    ]
+  }
+]

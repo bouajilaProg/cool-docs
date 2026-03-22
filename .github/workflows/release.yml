@@ -1,20 +1,42 @@
-name: release
+name: Release
 
 on:
   push:
     tags:
       - "v*"
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: false
+        default: 'draft'
+        type: choice
+        options:
+          - draft
+          - prerelease
+          - release
 
 permissions:
   contents: write
 
 jobs:
+  # Build job - runs on all triggers
   build:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-22.04, windows-latest]
+        include:
+          - platform: macos-latest
+            target: universal-apple-darwin
+          - platform: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -25,9 +47,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
@@ -44,15 +74,89 @@ jobs:
       - name: Install JS dependencies
         run: npm ci
 
-      - name: Build and attach to GitHub Release
+      - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tauriScript: npm run tauri
-          args: build
-          tagName: ${{ github.ref_name }}
-          releaseName: Cool Docs ${{ github.ref_name }}
-          releaseBody: Automated build from GitHub Actions.
-          releaseDraft: true
-          prerelease: false
+          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.platform }}
+          path: |
+            src-tauri/target/release/bundle/**/*.dmg
+            src-tauri/target/release/bundle/**/*.app
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.AppImage
+            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/bundle/**/*.exe
+            src-tauri/target/universal-apple-darwin/release/bundle/**/*.dmg
+
+  # Release job - only runs on tags or manual dispatch
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "version=dev-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine release type
+        id: release_type
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "draft=${{ github.event.inputs.release_type == 'draft' }}" >> $GITHUB_OUTPUT
+            echo "prerelease=${{ github.event.inputs.release_type == 'prerelease' }}" >> $GITHUB_OUTPUT
+          else
+            echo "draft=false" >> $GITHUB_OUTPUT
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: Cool Docs ${{ steps.get_version.outputs.version }}
+          body: |
+            ## Cool Docs ${{ steps.get_version.outputs.version }}
+            
+            ### Downloads
+            - **macOS**: Download the `.dmg` file
+            - **Windows**: Download the `.msi` installer or `.exe`
+            - **Linux**: Download the `.deb` package or `.AppImage`
+            
+            ### What's New
+            - See commit history for changes
+            
+            ### Import Documentation
+            After installation, you can import custom documentation via Settings > Import Documentation.
+            Supported formats: `.json` or `.zip` archives.
+          draft: ${{ steps.release_type.outputs.draft }}
+          prerelease: ${{ steps.release_type.outputs.prerelease }}
+          files: |
+            artifacts/**/*.dmg
+            artifacts/**/*.deb
+            artifacts/**/*.AppImage
+            artifacts/**/*.msi
+            artifacts/**/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

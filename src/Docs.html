@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings</title>
+  <title>Cool Docs</title>
   <link rel="stylesheet" href="./css/docs.css">
   <link rel="stylesheet" href="./css/side-bar.css">
   <link rel="stylesheet" id="code-theme" href="lib/highlightjs/code-theme/github-dark.css">
@@ -12,6 +12,14 @@
 </head>
 
 <body>
+  <!-- Loading overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Loading documentation...</p>
+    </div>
+  </div>
+
   <div class="side-bar">
     <a href="/">
       <header>
@@ -19,6 +27,11 @@
         <h2>Cool Docs</h2>
       </header>
     </a>
+
+    <div class="lang-switcher">
+      <label for="lang-switcher">Docs set</label>
+      <select id="lang-switcher" aria-label="Select documentation set"></select>
+    </div>
 
     <div id="side-root" class="link-container">
     </div>
