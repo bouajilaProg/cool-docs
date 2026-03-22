@@ -1,27 +1,13 @@
 # Cool Docs
 
-Cool Docs is a fast, cross-platform desktop application designed for competitive programmers. It helps you easily reference C++ documentation and algorithms while coding or participating in competitions. With support for custom XML files, the possibilities are endless, allowing you to create and extend documentation as needed.
+Cool Docs is a fast, cross-platform (Windows/macOS/Linux) desktop app for browsing your own coding documentation offline. Docs live as local XML files and are displayed with syntax highlighting and selectable code themes.
 
 ## Features
 
-- **Code Theme Customization**: Choose from multiple themes for code snippets, making it easy to read and adapt to your preferences.
-- **Fast and Efficient**: Designed to be lightweight and quick, ensuring smooth performance during time-sensitive coding sessions.
-- **Cross-Platform Support**: Run on Windows, macOS, and Linux, providing seamless access to your docs across different operating systems.
-- **Custom XML Files**: Add your own XML files to expand the documentation, creating a personalized and versatile resource for your coding needs.
-
-## Incoming Features
-
-- **Search**: Easier ways to find your docs with an improved search functionality.
-- **Update Button**: A folder-based structure where a lot of docs can be updated directly through a button in the settings.
-- **Support for Other Languages**: Expand documentation in multiple programming languages.
-- **Windows Installer**: An installer specifically for Windows users to make installation seamless.
-- **Linux Install Script**: A script to simplify installation on Linux systems.
-- **Dark Mode**: Support for a dark mode theme to reduce eye strain.
-- **More Code Theme Styles**: Additional code theme styles for a personalized experience.
-- **Other Programming Languages**: Add documentation for other programming languages.
-- **Improved UI**: Enhancements to the user interface for a more intuitive experience.
-- **Code Snippet Copy**: Copy code snippets directly to the clipboard for easy pasting into your code editor.
-- **md support**: support for markdown files. 
+- **Syntax Highlighting + Themes**: Render code blocks with highlighting and switch themes.
+- **Fast and Lightweight**: Designed to be quick and responsive.
+- **Cross-Platform**: Works on Windows, macOS, and Linux (Tauri).
+- **Local-First Docs**: Keep documentation in your repo/disk as XML files.
 
 
 ## Installation
@@ -31,27 +17,28 @@ Cool Docs is a fast, cross-platform desktop application designed for competitive
    git clone https://github.com/bouajilaProg/cool-docs.git
    ```
 
-2. Navigate to the project directory and run the build for Linux:
+2. Install dependencies:
    ```bash
-   npm run tauri build
+   npm ci
    ```
-   For building on other platforms, you can check the [Tauri documentation](https://tauri.app/distribute/) for detailed instructions.
 
-3. For testing the app, use:
+3. Run the app in development:
    ```bash
    npm run tauri dev
    ```
 
-4. After building, go to:
+4. Build a release bundle:
+   ```bash
+   npm run tauri build
+   ```
+   After building, go to:
    ```
    src-tauri/target/release/bundle
    ```
    and search for your system to find the appropriate build.
 
-5. **Setting Up Data**: 
-   Create a `/data/repo/<your language>` directory, and inside it, add the XML files containing your documentation.
-
-  for now we only support c++ , python , java and c#.
+5. Docs live under `src-tauri/data/repo/` (example docs are already included). Add your own docs by creating:
+   `src-tauri/data/repo/<language>/<category>/<name>.xml`
 
 
 
@@ -60,7 +47,7 @@ Cool Docs is a fast, cross-platform desktop application designed for competitive
 To create a new category or documentation file, follow this structure:
 
 1. **Category**: Create a folder for your category (e.g., Algorithms, Data Structures).
-2. **Documentation**: Inside the category folder, create an `file.xml` for each document.
+2. **Documentation**: Inside the category folder, create a `<name>.xml` file for each document.
 
 ### Example XML Structure:
 
@@ -77,6 +64,8 @@ To create a new category or documentation file, follow this structure:
     </item>
   </content>
 
+</document>
+
 ```
 
 In this XML file:
@@ -88,3 +77,8 @@ In this XML file:
 
 Feel free to fork the repository and submit pull requests. If you have suggestions or want to add your own XML documentation, open an issue or create a pull request with your changes.
 
+## GitHub Releases (CI)
+
+This repo includes a GitHub Actions workflow that builds the Tauri app and attaches installers/bundles to a GitHub Release.
+
+- Create and push a tag like `v0.1.0` to trigger the release build.
